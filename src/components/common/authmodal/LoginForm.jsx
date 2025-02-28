@@ -10,9 +10,10 @@ import apple from "../../../assets/images/Apple (Button).png"
 
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../../store/slices/userSlice';
+import { setLoginPopup, setActiveForm } from '../../../store/slices/authModalSlice.js';
 
 
-function LoginForm({ onSwitch }) {
+function LoginForm() {
 
     const dispatch = useDispatch();
 
@@ -116,7 +117,7 @@ function LoginForm({ onSwitch }) {
                 {/* Forgot Password Link */}
                 <div className="text-right mb-6">
                     <button className="text-gray-500 hover:text-gray-700 text-sm"
-                        onClick={() => onSwitch("forgot")}>
+                        onClick={() => dispatch(setActiveForm("forgot"))}>
                         Forgot Password?
                     </button>
                 </div>
@@ -154,7 +155,7 @@ function LoginForm({ onSwitch }) {
             <div className="text-center mt-6 text-sm text-gray-500">
                 Don’t have an account?{" "}
                 <button className="text-blue-600 hover:underline font-medium"
-                    onClick={() => onSwitch("signup")}>
+                    onClick={() => dispatch(setActiveForm("signup"))}>
                     Register Now
                 </button>
             </div>
