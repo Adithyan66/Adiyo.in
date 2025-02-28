@@ -1,20 +1,62 @@
 import React from 'react'
 import { useState } from 'react';
+import axios from 'axios';
 
-import {
-    Eye, ShowEye
-} from "../../../icons/icons";
+import { Eye, ShowEye } from "../../../icons/icons";
 
 import facebook from "../../../assets/images/Facebook (Button).png"
 import google from "../../../assets/images/Google (Button).png"
 import apple from "../../../assets/images/Apple (Button).png"
 
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../../../store/slices/userSlice';
 
 
 function LoginForm({ onSwitch }) {
 
+    const dispatch = useDispatch();
+
 
     const [showPassword, setShowPassword] = useState(false);
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault(); // Prevent default form submission
+
+
+        if (!email || !password) {
+            console.error("Fields cannot be empty!");
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                "http://localhost:3333/user/login",
+                { email, password },
+                {
+                    headers: { "Content-Type": "application/json" },
+                    withCredentials: true,
+                }
+            );
+            console.log("check token available in this:", response.data.token);
+
+
+            localStorage.setItem('token', response.data.token);
+
+            console.log("saved to local");
+
+            dispatch(loginSuccess({ user: response.data.user, token: response.data.token, role: response.data.role }));
+
+
+
+        } catch (err) {
+            console.error("Error:", err.response?.data || err.message);
+        }
+    };
+
 
 
 
@@ -29,58 +71,64 @@ function LoginForm({ onSwitch }) {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
                 Again!
             </h2>
+            <form onSubmit={handleSubmit}>
 
-            {/* Email Field */}
-            <div className="mb-4">
-                <label htmlFor="email" className="block text-gray-600 mb-1">
-                    Enter your email
-                </label>
-                <input
-                    type="email"
-                    id="email"
-                    placeholder="email"
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 outline-none focus:border-gray-400"
-                />
-            </div>
+                {/* Email Field */}
+                <div className="mb-4">
+                    <label htmlFor="email" className="block text-gray-600 mb-1">
+                        Enter your email
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="email"
+                        className="w-full border border-gray-300 rounded-md py-2 px-3 outline-none focus:border-gray-400"
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                </div>
 
-            {/* Password Field */}
-            <div className="mb-4 relative">
-                <label htmlFor="password" className="block text-gray-600 mb-1">
-                    Enter your password
-                </label>
-                <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    placeholder="password"
-                    className="w-full border border-gray-300 rounded-md py-2 px-3 outline-none focus:border-gray-400 pr-10"
-                />
-                {/* Eye Icon for toggling password */}
+                {/* Password Field */}
+                <div className="mb-4 relative">
+                    <label htmlFor="password" className="block text-gray-600 mb-1">
+                        Enter your password
+                    </label>
+                    <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        placeholder="password"
+                        className="w-full border border-gray-300 rounded-md py-2 px-3 outline-none focus:border-gray-400 pr-10"
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    {/* Eye Icon for toggling password */}
+                    <button
+                        type="button"
+                        className="absolute right-3 top-9 text-gray-500"
+                        onClick={() => setShowPassword(!showPassword)}
+                    >
+                        {showPassword ? (
+                            <Eye />
+                        ) : (
+                            <ShowEye />
+                        )}
+                    </button>
+                </div>
+
+                {/* Forgot Password Link */}
+                <div className="text-right mb-6">
+                    <button className="text-gray-500 hover:text-gray-700 text-sm"
+                        onClick={() => onSwitch("forgot")}>
+                        Forgot Password?
+                    </button>
+                </div>
+
+                {/* Login Button */}
                 <button
-                    type="button"
-                    className="absolute right-3 top-9 text-gray-500"
-                    onClick={() => setShowPassword(!showPassword)}
+                    className="w-full bg-black text-white py-2 rounded-md font-semibold hover:bg-gray-900 transition-colors"
+                    type='submit'
                 >
-                    {showPassword ? (
-                        <Eye />
-                    ) : (
-                        <ShowEye />
-                    )}
+                    Login
                 </button>
-            </div>
-
-            {/* Forgot Password Link */}
-            <div className="text-right mb-6">
-                <button className="text-gray-500 hover:text-gray-700 text-sm"
-                    onClick={() => onSwitch("forgot")}>
-                    Forgot Password?
-                </button>
-            </div>
-
-            {/* Login Button */}
-            <button className="w-full bg-black text-white py-2 rounded-md font-semibold hover:bg-gray-900 transition-colors">
-                Login
-            </button>
-
+            </form>
             {/* Or Login with */}
             <div className="flex items-center my-6">
                 <div className="flex-grow h-px bg-gray-300"></div>
